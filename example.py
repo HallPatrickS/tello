@@ -11,6 +11,7 @@ from controller import PS4Controller
 S = 60
 # Frames per second of the pygame window display
 FPS = 25
+TIME_TO_WAIT = 0.5 # in seconds
 
 
 class FrontEnd(object):
@@ -75,7 +76,30 @@ class FrontEnd(object):
         while not should_stop:
             time.sleep(0.01)
             for cmd in self.ps4.get_controls(): # maybe not make this a generator
-                print(cmd)
+                if len(cmd) == 2:
+                    self.move(cmd[0], cmd[1])
+                elif cmd == 'update':
+                    self.update()
+                elif cmd == 'takeoff':
+                    self.send_rc_control = True
+                    self.tello.takeoff()
+                elif cmd == 'land':
+                    self.send_rc_control = False
+                    self.tello.land()
+                elif cmd == 'emergency':
+                    self.send_rc_control = False
+                    self.tello.emergency()
+                    should_stop = True
+                    break
+                # elif cmd == "forward":
+                    # self.move(cmd[0], cmd[1])
+                # elif cmd == "back":
+                    # self.move(cmd[0], cmd[1])
+                # elif cmd == "left":
+                    # self.move(cmd[0], cmd[1])
+                # elif cmd == "right":
+                    # self.move(cmd[0], cmd[1])
+                # print(cmd)
             # for event in pygame.event.get():
                 # # print(event)
                 # if event.type == pygame.locals.USEREVENT + 1:
@@ -107,6 +131,39 @@ class FrontEnd(object):
         # Call it always before finishing. I deallocate resources.
         self.tello.end()
 
+
+    def move(self, direction, value):
+        if direction == 'forward':
+            self.for_back_velocity = S
+        elif direction == 'back':
+            self.for_back_velocity = -S
+        elif direction == 'left':
+            self.left_right_velocity = -S
+        elif direction == 'right':
+            self.left_right_velocity = S
+        elif direction == 'up':
+            if value:
+                self.up_down_velocity = S
+            else:
+                self.up_down_velocity = 0
+        elif direction == 'down':
+            if value:
+                self.up_down_velocity = -S
+            else:
+                self.up_down_velocity = 0
+        elif direction == 'cw':  # set yaw clockwise velocity
+            if value:
+                self.yaw_velocity = -S
+            else:
+                self.yaw_velocity = 0 
+        elif direction == 'ccw':  # set yaw counter clockwise velocity
+            if value:
+                self.yaw_velocity = S
+            else:
+                self.yaw_velocity = 0 
+        elif direction == 'reset':
+            self.reset_movement()
+
     def keydown(self, key):
         """ Update velocities based on key pressed
         Arguments:
@@ -128,6 +185,18 @@ class FrontEnd(object):
             self.yaw_velocity = -S
         elif key == pygame.K_d:  # set yaw counter clockwise velocity
             self.yaw_velocity = S
+
+
+    def reset_movement(self):
+        self.for_back_velocity   = 0
+        self.for_back_velocity   = 0
+        self.left_right_velocity = 0
+        self.left_right_velocity = 0
+        self.up_down_velocity    = 0
+        self.up_down_velocity    = 0
+        self.yaw_velocity        = 0
+        self.yaw_velocity        = 0
+
 
     def keyup(self, key):
         """ Update velocities based on key released
@@ -151,14 +220,22 @@ class FrontEnd(object):
 
     def update(self):
         """ Update routine. Send velocities to Tello."""
+        # print('updating', 
+                    # self.left_right_velocity,
+                    # self.for_back_velocity,
+                    # self.up_down_velocity,
+                    # self.yaw_velocity)
         if self.send_rc_control:
-            self.tello.send_rc_control(self.left_right_velocity, self.for_back_velocity, self.up_down_velocity,
-                                       self.yaw_velocity)
+            self.tello.send_rc_control(
+                    self.left_right_velocity,
+                    self.for_back_velocity,
+                    self.up_down_velocity,
+                    self.yaw_velocity)
+            # self.reset_movement()
 
 
 def main():
     frontend = FrontEnd()
-
     # run frontend
     frontend.run()
 
