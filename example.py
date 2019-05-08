@@ -1,9 +1,11 @@
 from djitellopy import Tello
 import cv2
 import pygame
-from pygame.locals import *
+import pygame.locals
+# from pygame.locals import *
 import numpy as np
 import time
+from controller import PS4Controller
 
 # Speed of the drone
 S = 60
@@ -24,7 +26,10 @@ class FrontEnd(object):
 
     def __init__(self):
         # Init pygame
-        pygame.init()
+        ps4 = PS4Controller()
+        ps4.init()
+
+        # pygame.init()
 
         # Creat pygame window
         pygame.display.set_caption("Tello video stream")
@@ -43,10 +48,9 @@ class FrontEnd(object):
         self.send_rc_control = False
 
         # create update timer
-        pygame.time.set_timer(USEREVENT + 1, 50)
+        pygame.time.set_timer(pygame.locals.USEREVENT + 1, 50)
 
     def run(self):
-
         if not self.tello.connect():
             print("Tello not connected")
             return
@@ -55,7 +59,8 @@ class FrontEnd(object):
             print("Not set speed to lowest possible")
             return
 
-        # In case streaming is on. This happens when we quit this program without the escape key.
+        # In case streaming is on.
+        # This happens when we quit this program without the escape key.
         if not self.tello.streamoff():
             print("Could not stop video stream")
             return
@@ -68,18 +73,19 @@ class FrontEnd(object):
 
         should_stop = False
         while not should_stop:
-
+            time.sleep(0.01)
             for event in pygame.event.get():
-                if event.type == USEREVENT + 1:
+                # print(event)
+                if event.type == pygame.locals.USEREVENT + 1:
                     self.update()
-                elif event.type == QUIT:
+                elif event.type == pygame.locals.QUIT:
                     should_stop = True
-                elif event.type == KEYDOWN:
-                    if event.key == K_ESCAPE:
+                elif event.type == pygame.locals.KEYDOWN:
+                    if event.key == pygame.locals.K_ESCAPE:
                         should_stop = True
                     else:
                         self.keydown(event.key)
-                elif event.type == KEYUP:
+                elif event.type == pygame.locals.KEYUP:
                     self.keyup(event.key)
 
             if frame_read.stopped:

@@ -71,6 +71,14 @@ class Tello:
 
         return self.cap
 
+    def yield_frame_read(self):
+        ''' yields a frame '''
+        while 1:
+            if not self.background_frame_read:
+                self.background_frame_read = BackgroundFrameRead(self, self.get_udp_video_address()).start()
+            yield self.background_frame_read
+
+
     def get_frame_read(self):
         """Get the BackgroundFrameRead object from the camera drone. Then, you just need to call
         backgroundFrameRead.frame to get the actual frame received by the drone.
