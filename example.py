@@ -26,8 +26,8 @@ class FrontEnd(object):
 
     def __init__(self):
         # Init pygame
-        ps4 = PS4Controller()
-        ps4.init()
+        self.ps4 = PS4Controller()
+        self.ps4.init()
 
         # pygame.init()
 
@@ -74,19 +74,21 @@ class FrontEnd(object):
         should_stop = False
         while not should_stop:
             time.sleep(0.01)
-            for event in pygame.event.get():
-                # print(event)
-                if event.type == pygame.locals.USEREVENT + 1:
-                    self.update()
-                elif event.type == pygame.locals.QUIT:
-                    should_stop = True
-                elif event.type == pygame.locals.KEYDOWN:
-                    if event.key == pygame.locals.K_ESCAPE:
-                        should_stop = True
-                    else:
-                        self.keydown(event.key)
-                elif event.type == pygame.locals.KEYUP:
-                    self.keyup(event.key)
+            for cmd in self.ps4.get_controls(): # maybe not make this a generator
+                print(cmd)
+            # for event in pygame.event.get():
+                # # print(event)
+                # if event.type == pygame.locals.USEREVENT + 1:
+                    # self.update()
+                # elif event.type == pygame.locals.QUIT:
+                    # should_stop = True
+                # elif event.type == pygame.locals.KEYDOWN:
+                    # if event.key == pygame.locals.K_ESCAPE:
+                        # should_stop = True
+                    # else:
+                        # self.keydown(event.key)
+                # elif event.type == pygame.locals.KEYUP:
+                    # self.keyup(event.key)
 
             if frame_read.stopped:
                 frame_read.stop()

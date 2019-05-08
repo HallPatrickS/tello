@@ -9,6 +9,40 @@ import os
 import pprint
 import pygame
 
+def ds_to_tello(kind, key, value):
+    if kind == 'axis':
+        if key == 0:
+            if value < 0:
+                return 'left 20'
+            return 'right 20'
+        if key == 1:
+            if value < 0:
+                return 'forward 20'
+            return 'backward 20'
+        if key == 3:
+            if value < 0:
+                return 'ccw 20'
+            return 'cw 20'
+        if key == 4:
+            if value < 0:
+                return 'up 20'
+            return 'down 20'
+    if kind == 'button_down':
+        if key == 0: # x 
+            return 'land'
+        if key == 2: # triangle
+            return 'takeoff'
+        if key == 4: # L1
+            return 'flip l'
+        if key == 5: # R1
+            return 'flip r'
+        if key == 8:
+            return 'streamon'
+        if key == 9:
+            return 'streamoff'
+        if key == 10:
+            return 'emergency'
+
 
 class PS4Controller(object):
     controller = None
@@ -21,6 +55,26 @@ class PS4Controller(object):
         pygame.joystick.init()
         self.controller = pygame.joystick.Joystick(0)
         self.controller.init()
+
+    def event_to_tello(event):
+        if event.type == pygame.JOYAXISMOTION:
+            self.axis_data[event.axis] = round(event.value, 2)
+            return ds_to_tello('axis', event.axis, round(event.value, 2)) 
+        elif event.type == pygame.JOYBUTTONDOWN:
+            self.button_data[event.button] = True
+            return ds_to_tello('button_down', event.button, None)
+            # kind, data = 'button_down', self.button_data
+        elif event.type == pygame.JOYBUTTONUP:
+            self.button_data[event.button] = False
+            # kind, data = 'button_up', self.button_data
+        elif event.type == pygame.JOYHATMOTION:
+            self.hat_data[event.hat] = event.value
+            # kind, data = 'hat', self.hat_data
+        return None
+
+
+    def get_controls():
+        return [self.event_to_tello(e) for e is pygame.event.get() if e]
 
     def listen(self):
         """Listen for events to happen"""
@@ -39,24 +93,29 @@ class PS4Controller(object):
                 self.hat_data[i] = (0, 0)
 
         while True:
+            ret = []
             for event in pygame.event.get():
+                cmd = None
                 if event.type == pygame.JOYAXISMOTION:
                     self.axis_data[event.axis] = round(event.value, 2)
+                    cmd = ds_to_tello('axis', event.axis, round(event.value, 2)) 
                 elif event.type == pygame.JOYBUTTONDOWN:
                     self.button_data[event.button] = True
+                    cmd = ds_to_tello('button_down', event.button, None)
+                    # kind, data = 'button_down', self.button_data
                 elif event.type == pygame.JOYBUTTONUP:
                     self.button_data[event.button] = False
+                    # kind, data = 'button_up', self.button_data
                 elif event.type == pygame.JOYHATMOTION:
                     self.hat_data[event.hat] = event.value
-
-                # Insert your code on what you would like to happen for each event here!
-                # In the current setup, I have the state simply printing out to
-                # the screen.
-
-                os.system('clear')
-                pprint.pprint(self.button_data)
-                pprint.pprint(self.axis_data)
-                pprint.pprint(self.hat_data)
+                    # kind, data = 'hat', self.hat_data
+                if cmd:
+                    ret.append(cmd)
+            return ret
+                # os.system('clear')
+                # pprint.pprint(self.button_data)
+                # pprint.pprint(self.axis_data)
+                # pprint.pprint(self.hat_data)
 
 
 if __name__ == "__main__":
