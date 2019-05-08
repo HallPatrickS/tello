@@ -51,7 +51,8 @@ class Tello:
             try:
                 self.response, _ = self.clientSocket.recvfrom(1024)  # buffer size is 1024 bytes
             except Exception as e:
-                print(e)
+                # print(e)
+                print('asdfasdfasfd')
                 break
 
     def get_udp_video_address(self):

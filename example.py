@@ -2,7 +2,6 @@ from djitellopy import Tello
 import cv2
 import pygame
 import pygame.locals
-# from pygame.locals import *
 import numpy as np
 import time
 from controller import PS4Controller
@@ -97,9 +96,11 @@ class FrontEnd(object):
 
             self.screen.fill([0, 0, 0])
             # start new
+            frame = frame_read.frame
+            # frame = self.yolo.do_yolo(frame_read.frame)
             # end new
-            frame = cv2.cvtColor(frame_read.frame, cv2.COLOR_BGR2RGB)
-            frame = self.yolo.do_yolo(frame)
+            # frame = cv2.cvtColor(frame_read.frame, cv2.COLOR_BGR2RGB)
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             frame = np.rot90(frame)
             frame = np.flipud(frame)
             frame = pygame.surfarray.make_surface(frame)

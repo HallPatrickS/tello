@@ -9,7 +9,6 @@ import os
 import pprint
 import pygame
 
-
 class PS4Controller(object):
     controller = None
     axis_data = None
@@ -48,18 +47,19 @@ class PS4Controller(object):
                     self.button_data[event.button] = False
                 elif event.type == pygame.JOYHATMOTION:
                     self.hat_data[event.hat] = event.value
+                yield event
 
                 # Insert your code on what you would like to happen for each event here!
                 # In the current setup, I have the state simply printing out to
                 # the screen.
 
-                os.system('clear')
-                pprint.pprint(self.button_data)
-                pprint.pprint(self.axis_data)
-                pprint.pprint(self.hat_data)
+                # os.system('clear')
+                # pprint.pprint(self.button_data)
+                # pprint.pprint(self.axis_data)
+                # pprint.pprint(self.hat_data)
 
 
-if __name__ == "__main__":
-    ps4 = PS4Controller()
-    ps4.init()
-    ps4.listen()
+# if __name__ == "__main__":
+    # ps4 = PS4Controller()
+    # ps4.init()
+    # ps4.listen()

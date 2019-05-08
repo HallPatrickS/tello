@@ -41,6 +41,8 @@ class Yolo():
 # derive the paths to the YOLO weights and model configuration
         weightsPath = os.path.sep.join([self.args["yolo"], "yolov3.weights"])
         configPath = os.path.sep.join([self.args["yolo"], "yolov3.cfg"])
+        # weightsPath = os.path.sep.join([self.args["yolo"], "yolov3-tiny.weights"])
+        # configPath = os.path.sep.join([self.args["yolo"], "yolov3-tiny.cfg"])
 
 # load our YOLO object detector trained on COCO dataset (80 classes)
 # and determine only the *output* layer names that we need from YOLO
@@ -62,11 +64,16 @@ class Yolo():
         if not self.H or not self.W:
             (self.H, self.W) = frame.shape[:2]
 
+        # blob = cv2.dnn.blobFromImage(
+                # frame, 1 / 255.0, (416, 416),
+                # swapRB=True, crop=False)
         blob = cv2.dnn.blobFromImage(
                 frame, 1 / 255.0, (416, 416),
-                swapRB=True, crop=False)
+                swapRB=True, crop=True)
         self.net.setInput(blob)
+        start = time.time()
         layerOutputs = self.net.forward(self.ln)
+        print('forward time: ', time.time() - start)
 
         # initialize our lists of detected bounding boxes, confidences,
         # and class IDs, respectively
