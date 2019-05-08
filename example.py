@@ -51,6 +51,29 @@ class FrontEnd(object):
         # create update timer
         pygame.time.set_timer(pygame.locals.USEREVENT + 1, 50)
 
+    def handle_cmd(self, cmd):
+        if len(cmd) == 2:
+            if cmd[0] == 'flip':
+                self.tello.flip(cmd[1])
+            else:
+                self.move(cmd[0], cmd[1])
+        elif cmd == 'update':
+            self.update()
+        elif cmd == 'takeoff':
+            self.send_rc_control = True
+            self.tello.takeoff()
+        elif cmd == 'land':
+            self.send_rc_control = False
+            self.tello.land()
+        elif cmd == 'emergency':
+            self.send_rc_control = False
+            self.tello.emergency()
+            return True
+        return False
+            # should_stop = True
+            # break
+
+
     def run(self):
         if not self.tello.connect():
             print("Tello not connected")
@@ -75,34 +98,10 @@ class FrontEnd(object):
         should_stop = False
         while not should_stop:
             time.sleep(0.01)
-            for cmd in self.ps4.get_controls(): # maybe not make this a generator
-                if len(cmd) == 2:
-                    if cmd[0] == 'flip':
-                        self.tello.flip(cmd[1])
-                    else:
-                        self.move(cmd[0], cmd[1])
-                elif cmd == 'update':
-                    self.update()
-                elif cmd == 'takeoff':
-                    self.send_rc_control = True
-                    self.tello.takeoff()
-                elif cmd == 'land':
-                    self.send_rc_control = False
-                    self.tello.land()
-                elif cmd == 'emergency':
-                    self.send_rc_control = False
-                    self.tello.emergency()
-                    should_stop = True
+            for cmd in self.ps4.get_controls(): 
+                should_stop = self.handle_cmd(cmd)
+                if should_stop:
                     break
-                # elif cmd == "forward":
-                    # self.move(cmd[0], cmd[1])
-                # elif cmd == "back":
-                    # self.move(cmd[0], cmd[1])
-                # elif cmd == "left":
-                    # self.move(cmd[0], cmd[1])
-                # elif cmd == "right":
-                    # self.move(cmd[0], cmd[1])
-                # print(cmd)
             # for event in pygame.event.get():
                 # # print(event)
                 # if event.type == pygame.locals.USEREVENT + 1:
