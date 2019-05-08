@@ -59,6 +59,10 @@ def ds_to_tello(kind, key, value):
     if kind == 'button_down':
         if key == 0: # x 
             return 'land'
+        if key == 1:
+            return ('flip', 'r')
+        if key == 3:
+            return ('flip', 'l')
         if key == 2: # triangle
             return 'takeoff'
         if key == 4: # L1

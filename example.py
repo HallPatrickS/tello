@@ -77,7 +77,10 @@ class FrontEnd(object):
             time.sleep(0.01)
             for cmd in self.ps4.get_controls(): # maybe not make this a generator
                 if len(cmd) == 2:
-                    self.move(cmd[0], cmd[1])
+                    if cmd[0] == 'flip':
+                        self.tello.flip(cmd[1])
+                    else:
+                        self.move(cmd[0], cmd[1])
                 elif cmd == 'update':
                     self.update()
                 elif cmd == 'takeoff':
@@ -218,13 +221,9 @@ class FrontEnd(object):
             self.tello.land()
             self.send_rc_control = False
 
+
     def update(self):
         """ Update routine. Send velocities to Tello."""
-        # print('updating', 
-                    # self.left_right_velocity,
-                    # self.for_back_velocity,
-                    # self.up_down_velocity,
-                    # self.yaw_velocity)
         if self.send_rc_control:
             self.tello.send_rc_control(
                     self.left_right_velocity,
