@@ -6,6 +6,7 @@ import pygame.locals
 import numpy as np
 import time
 from controller import PS4Controller
+from yolo_video import Yolo
 
 # Speed of the drone
 S = 60
@@ -46,6 +47,7 @@ class FrontEnd(object):
         self.speed = 10
 
         self.send_rc_control = False
+        self.yolo = Yolo()
 
         # create update timer
         pygame.time.set_timer(pygame.locals.USEREVENT + 1, 50)
@@ -72,6 +74,7 @@ class FrontEnd(object):
         frame_read = self.tello.get_frame_read()
 
         should_stop = False
+        # import pdb; pdb.set_trace()
         while not should_stop:
             time.sleep(0.01)
             for event in pygame.event.get():
@@ -93,7 +96,10 @@ class FrontEnd(object):
                 break
 
             self.screen.fill([0, 0, 0])
+            # start new
+            # end new
             frame = cv2.cvtColor(frame_read.frame, cv2.COLOR_BGR2RGB)
+            frame = self.yolo.do_yolo(frame)
             frame = np.rot90(frame)
             frame = np.flipud(frame)
             frame = pygame.surfarray.make_surface(frame)
