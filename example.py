@@ -6,6 +6,7 @@ import pygame.locals
 import numpy as np
 import time
 from controller import PS4Controller
+from yolo_video import Yolo
 
 # Speed of the drone
 S = 60
@@ -29,6 +30,10 @@ class FrontEnd(object):
         # Init pygame
         self.ps4 = PS4Controller()
         self.ps4.init()
+
+        self.yolo = Yolo()
+
+        self.yolo_on = True
 
         # pygame.init()
 
@@ -69,6 +74,8 @@ class FrontEnd(object):
             self.send_rc_control = False
             self.tello.emergency()
             return True
+        elif cmd == 'n_n':
+            self.yolo_on = not self.yolo_on
         return False
             # should_stop = True
             # break
@@ -98,7 +105,7 @@ class FrontEnd(object):
         should_stop = False
         while not should_stop:
             time.sleep(0.01)
-            for cmd in self.ps4.get_controls(): 
+            for cmd in self.ps4.get_controls(): # maybe not make this a generator
                 should_stop = self.handle_cmd(cmd)
                 if should_stop:
                     break
@@ -120,8 +127,12 @@ class FrontEnd(object):
                 frame_read.stop()
                 break
 
+
             self.screen.fill([0, 0, 0])
-            frame = cv2.cvtColor(frame_read.frame, cv2.COLOR_BGR2RGB)
+            frame = frame_read.frame
+            if self.yolo_on:
+                frame = self.yolo.do_yolo(frame)
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             frame = np.rot90(frame)
             frame = np.flipud(frame)
             frame = pygame.surfarray.make_surface(frame)

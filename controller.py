@@ -74,7 +74,7 @@ def ds_to_tello(kind, key, value):
         if key == 7: # r2
             return ('up', 20)
         if key == 8:
-            return 'streamon'
+            return 'n_n'
         if key == 9:
             return 'streamoff'
         if key == 10:
